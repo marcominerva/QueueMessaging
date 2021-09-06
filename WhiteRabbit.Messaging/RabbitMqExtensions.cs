@@ -26,7 +26,7 @@ namespace WhiteRabbit.Messaging
             where TReceiver : class, IMessageReceiver<TObject>
         {
             services.AddHostedService<QueueListener>();
-            services.AddTransient<IMessageReceiver, TReceiver>();
+            services.AddSingleton<IMessageReceiver, TReceiver>();
 
             return services;
         }

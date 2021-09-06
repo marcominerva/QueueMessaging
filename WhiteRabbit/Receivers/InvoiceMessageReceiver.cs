@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using WhiteRabbit.Messaging.Abstractions;
 using WhiteRabbit.Shared;
 
@@ -10,7 +11,7 @@ namespace WhiteRabbit.Receivers
         {
         }
 
-        public override Task ReceiveAsync(Invoice message)
+        public override Task ReceiveAsync(IServiceProvider serviceProvider, Invoice message)
         {
             return Task.CompletedTask;
         }

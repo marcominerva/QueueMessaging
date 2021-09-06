@@ -24,5 +24,14 @@ namespace WhiteRabbit.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("2")]
+        public async Task<IActionResult> Post2()
+        {
+            var test = new Invoice { };
+            await messageSender.PublishAsync(test);
+
+            return NoContent();
+        }
     }
 }

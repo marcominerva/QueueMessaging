@@ -74,7 +74,7 @@ namespace WhiteRabbit.Messaging
         {
             var sendBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message, jsonSerializerOptions));
 
-            var routingKey = queueSettings.Queues.FirstOrDefault(q => q.Value == typeof(T)).Key;
+            var routingKey = queueSettings.Queues.First(q => q.Value == typeof(T)).Key;
             return PublishAsync(sendBytes.AsMemory(), routingKey, priority, retryAttempts);
         }
 

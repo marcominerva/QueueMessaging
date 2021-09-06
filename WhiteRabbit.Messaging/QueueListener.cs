@@ -61,10 +61,10 @@ namespace WhiteRabbit.Messaging
 
                     var messageType = settings.Queues[message.RoutingKey];
                     var receivers = scope.ServiceProvider.GetServices<IMessageReceiver>();
-                    var receiver = receivers.FirstOrDefault(r => r.GetType().GetMethod("ReceiveAsync", new[] { messageType }) != null);
+                    var receiver = receivers.First(r => r.GetType().BaseType.GetGenericArguments().First() == messageType);
 
                     var response = JsonSerializer.Deserialize(message.Body.Span, messageType, jsonSerializerOptions);
-                    await receiver.ReceiveAsync(response);
+                    await receiver.ReceiveAsync(scope.ServiceProvider, response);
 
                     messageManager.MarkAsComplete(message);
 
