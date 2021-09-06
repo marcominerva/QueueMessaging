@@ -17,7 +17,7 @@ namespace WhiteRabbit.Messaging
     internal class QueueListener : BackgroundService
     {
         private readonly MessageManager messageManager;
-        private readonly QueueListenerSettings settings;
+        private readonly QueueSettings settings;
         private readonly ILogger<QueueListener> logger;
         private readonly IServiceProvider serviceProvider;
 
@@ -26,7 +26,7 @@ namespace WhiteRabbit.Messaging
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
         };
 
-        public QueueListener(MessageManager messageManager, QueueListenerSettings settings, ILogger<QueueListener> logger, IServiceProvider serviceProvider)
+        public QueueListener(MessageManager messageManager, QueueSettings settings, ILogger<QueueListener> logger, IServiceProvider serviceProvider)
         {
             this.messageManager = messageManager;
             this.settings = settings;
@@ -60,8 +60,8 @@ namespace WhiteRabbit.Messaging
                     var messageType = settings.Queues[message.RoutingKey];
 
                     using var scope = serviceProvider.CreateScope();
-                    var receivers = scope.ServiceProvider.GetServices<IMessageReceiver>();
 
+                    var receivers = scope.ServiceProvider.GetServices<IMessageReceiver>();
                     var receiver = receivers.FirstOrDefault(r => r.GetType().GetMethod("ReceiveAsync", new[] { messageType }) != null);
 
                     var response = JsonSerializer.Deserialize(message.Body.Span, messageType, jsonSerializerOptions);

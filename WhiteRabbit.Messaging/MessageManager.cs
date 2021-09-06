@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -14,8 +15,6 @@ namespace WhiteRabbit.Messaging
     {
         private const string RetryAttemptsHeader = "x-retry-attempts";
 
-        private readonly string exchange;
-
         internal IConnection Connection { get; private set; }
 
         internal IModel Channel { get; private set; }
@@ -25,31 +24,36 @@ namespace WhiteRabbit.Messaging
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
         };
 
-        public MessageManager(MessageManagerSettings settings)
+        private readonly MessageManagerSettings messageManagerSettings;
+        private readonly QueueSettings queueSettings;
+
+        public MessageManager(MessageManagerSettings messageManagerSettings, QueueSettings queueSettings)
         {
-            var factory = new ConnectionFactory { Uri = new Uri(settings.ConnectionString) };
+            var factory = new ConnectionFactory { Uri = new Uri(messageManagerSettings.ConnectionString) };
             Connection = factory.CreateConnection();
 
             Channel = Connection.CreateModel();
-            exchange = settings.ExchangeName;
 
-            if (settings.QueuePrefetchCount > 0)
+            if (messageManagerSettings.QueuePrefetchCount > 0)
             {
-                Channel.BasicQos(0, settings.QueuePrefetchCount, false);
+                Channel.BasicQos(0, messageManagerSettings.QueuePrefetchCount, false);
             }
 
-            Channel.ExchangeDeclare(exchange, ExchangeType.Direct);
+            Channel.ExchangeDeclare(messageManagerSettings.ExchangeName, ExchangeType.Direct);
 
-            foreach (var queue in settings.Queues)
+            foreach (var queue in queueSettings.Queues.Keys)
             {
                 var args = new Dictionary<string, object>
                 {
                     ["x-max-priority"] = 10
                 };
-                Channel.QueueDeclare(queue.QueueName, durable: true, false, false, args);
+                Channel.QueueDeclare(queue, durable: true, false, false, args);
 
-                Channel.QueueBind(queue.QueueName, exchange, queue.RoutingKey ?? queue.QueueName, null);
+                Channel.QueueBind(queue, messageManagerSettings.ExchangeName, queue, null);
             }
+
+            this.messageManagerSettings = messageManagerSettings;
+            this.queueSettings = queueSettings;
         }
 
         private Task PublishAsync(ReadOnlyMemory<byte> body, string routingKey, int priority = 1, int retryAttempts = 0)
@@ -62,13 +66,15 @@ namespace WhiteRabbit.Messaging
                 [RetryAttemptsHeader] = retryAttempts
             };
 
-            Channel.BasicPublish(exchange, routingKey, properties, body);
+            Channel.BasicPublish(messageManagerSettings.ExchangeName, routingKey, properties, body);
             return Task.CompletedTask;
         }
 
-        public Task PublishAsync<T>(T message, string routingKey, int priority = 1, int retryAttempts = 0) where T : class
+        public Task PublishAsync<T>(T message, int priority = 1, int retryAttempts = 0) where T : class
         {
             var sendBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message, jsonSerializerOptions));
+
+            var routingKey = queueSettings.Queues.FirstOrDefault(q => q.Value == typeof(T)).Key;
             return PublishAsync(sendBytes.AsMemory(), routingKey, priority, retryAttempts);
         }
 

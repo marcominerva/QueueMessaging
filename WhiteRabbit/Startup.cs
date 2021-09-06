@@ -33,12 +33,9 @@ namespace WhiteRabbit
                 settings.ConnectionString = "amqp://guest:guest@pi4dev:5672";
                 settings.ExchangeName = "my-app";
                 settings.QueuePrefetchCount = 0;
-
-                settings.AddQueue("test.queue");
-            })
-            .AddListener(settings =>
+            }, queues =>
             {
-                settings.Bind<Test>("test.queue");
+                queues.Add<Test>("test.queue");
             })
             .AddReceiver<Test, TestMessageReceiver>();
         }

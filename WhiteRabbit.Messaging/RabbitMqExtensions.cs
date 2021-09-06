@@ -6,24 +6,17 @@ namespace WhiteRabbit.Messaging
 {
     public static class RabbitMQExtensions
     {
-        public static IServiceCollection AddRabbitMq(this IServiceCollection services, Action<MessageManagerSettings> configuration)
+        public static IServiceCollection AddRabbitMq(this IServiceCollection services, Action<MessageManagerSettings> messageManagerConfiguration, Action<QueueSettings> queuesConfiguration)
         {
             services.AddSingleton<MessageManager>();
 
-            var settings = new MessageManagerSettings();
-            configuration?.Invoke(settings);
-            services.AddSingleton(settings);
+            var messageManagerSettings = new MessageManagerSettings();
+            messageManagerConfiguration?.Invoke(messageManagerSettings);
+            services.AddSingleton(messageManagerSettings);
 
-            return services;
-        }
-
-        public static IServiceCollection AddListener(this IServiceCollection services, Action<QueueListenerSettings> configuration)
-        {
-            var settings = new QueueListenerSettings();
-            configuration?.Invoke(settings);
-            services.AddSingleton(settings);
-
-            services.AddHostedService<QueueListener>();
+            var queueSettings = new QueueSettings();
+            queuesConfiguration?.Invoke(queueSettings);
+            services.AddSingleton(queueSettings);
 
             return services;
         }
@@ -31,7 +24,8 @@ namespace WhiteRabbit.Messaging
         public static IServiceCollection AddReceiver<TObject, TReceiver>(this IServiceCollection services) where TObject : class
             where TReceiver : class, IMessageReceiver<TObject>
         {
-            services.AddScoped<IMessageReceiver, TReceiver>();
+            services.AddHostedService<QueueListener>();
+            services.AddTransient<IMessageReceiver, TReceiver>();
             return services;
         }
     }

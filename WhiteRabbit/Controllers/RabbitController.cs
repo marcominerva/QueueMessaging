@@ -20,7 +20,7 @@ namespace WhiteRabbit.Controllers
         public async Task<IActionResult> Post()
         {
             var test = new Test { Name = "Pippo" };
-            await messageManager.PublishAsync(test, "test.queue");
+            await messageManager.PublishAsync(test);
 
             return NoContent();
         }
