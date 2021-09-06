@@ -61,7 +61,8 @@ namespace WhiteRabbit.Messaging
 
                     using var scope = serviceProvider.CreateScope();
                     var receivers = scope.ServiceProvider.GetServices<IMessageReceiver>();
-                    var receiver = receivers.FirstOrDefault(r => r.GetType().GetGenericArguments().FirstOrDefault() == messageType);
+
+                    var receiver = receivers.FirstOrDefault(r => r.GetType().GetMethod("ReceiveAsync", new[] { messageType }) != null);
 
                     var response = JsonSerializer.Deserialize(message.Body.Span, messageType, jsonSerializerOptions);
                     await receiver.ReceiveAsync(response);
