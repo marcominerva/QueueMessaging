@@ -8,7 +8,8 @@ namespace WhiteRabbit.Messaging
     {
         public static IServiceCollection AddRabbitMq(this IServiceCollection services, Action<MessageManagerSettings> messageManagerConfiguration, Action<QueueSettings> queuesConfiguration)
         {
-            services.AddSingleton<IMessageManager, MessageManager>();
+            services.AddSingleton<MessageManager>();
+            services.AddSingleton<IMessageSender>(provider => provider.GetService<MessageManager>());
 
             var messageManagerSettings = new MessageManagerSettings();
             messageManagerConfiguration?.Invoke(messageManagerSettings);

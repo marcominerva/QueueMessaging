@@ -9,18 +9,18 @@ namespace WhiteRabbit.Controllers
     [Route("[controller]")]
     public class RabbitController : ControllerBase
     {
-        private readonly IMessageManager messageManager;
+        private readonly IMessageSender messageSender;
 
-        public RabbitController(IMessageManager messageManager)
+        public RabbitController(IMessageSender messageSender)
         {
-            this.messageManager = messageManager;
+            this.messageSender = messageSender;
         }
 
         [HttpPost]
         public async Task<IActionResult> Post()
         {
             var test = new Test { Name = "Pippo" };
-            await messageManager.PublishAsync(test);
+            await messageSender.PublishAsync(test);
 
             return NoContent();
         }

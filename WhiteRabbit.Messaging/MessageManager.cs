@@ -11,7 +11,7 @@ using WhiteRabbit.Messaging.Abstractions;
 
 namespace WhiteRabbit.Messaging
 {
-    public class MessageManager : IMessageManager, IDisposable
+    internal class MessageManager : IMessageSender, IDisposable
     {
         private const string RetryAttemptsHeader = "x-retry-attempts";
 
@@ -39,7 +39,7 @@ namespace WhiteRabbit.Messaging
                 Channel.BasicQos(0, messageManagerSettings.QueuePrefetchCount, false);
             }
 
-            Channel.ExchangeDeclare(messageManagerSettings.ExchangeName, ExchangeType.Direct);
+            Channel.ExchangeDeclare(messageManagerSettings.ExchangeName, ExchangeType.Direct, durable: true);
 
             foreach (var queue in queueSettings.Queues.Keys)
             {
