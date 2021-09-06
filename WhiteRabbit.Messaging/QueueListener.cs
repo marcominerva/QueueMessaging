@@ -57,10 +57,9 @@ namespace WhiteRabbit.Messaging
                 {
                     logger.LogDebug("Messaged received: {Request}", Encoding.UTF8.GetString(message.Body.Span));
 
-                    var messageType = settings.Queues[message.RoutingKey];
-
                     using var scope = serviceProvider.CreateScope();
 
+                    var messageType = settings.Queues[message.RoutingKey];
                     var receivers = scope.ServiceProvider.GetServices<IMessageReceiver>();
                     var receiver = receivers.FirstOrDefault(r => r.GetType().GetMethod("ReceiveAsync", new[] { messageType }) != null);
 

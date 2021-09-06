@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using WhiteRabbit.Messaging;
+using WhiteRabbit.Messaging.Abstractions;
 using WhiteRabbit.Shared;
 
 namespace WhiteRabbit.Controllers
@@ -9,9 +9,9 @@ namespace WhiteRabbit.Controllers
     [Route("[controller]")]
     public class RabbitController : ControllerBase
     {
-        private readonly MessageManager messageManager;
+        private readonly IMessageManager messageManager;
 
-        public RabbitController(MessageManager messageManager)
+        public RabbitController(IMessageManager messageManager)
         {
             this.messageManager = messageManager;
         }

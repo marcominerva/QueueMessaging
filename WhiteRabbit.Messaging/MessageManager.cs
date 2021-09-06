@@ -11,7 +11,7 @@ using WhiteRabbit.Messaging.Abstractions;
 
 namespace WhiteRabbit.Messaging
 {
-    public class MessageManager : IDisposable
+    public class MessageManager : IMessageManager, IDisposable
     {
         private const string RetryAttemptsHeader = "x-retry-attempts";
 
