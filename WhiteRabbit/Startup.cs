@@ -36,8 +36,10 @@ namespace WhiteRabbit
             }, queues =>
             {
                 queues.Add<Test>("test.queue");
+                queues.Add<Invoice>("invoice.queue");
             })
-            .AddReceiver<Test, TestMessageReceiver>();
+            .AddReceiver<Test, TestMessageReceiver>()
+            .AddReceiver<Invoice, InvoiceMessageReceiver>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

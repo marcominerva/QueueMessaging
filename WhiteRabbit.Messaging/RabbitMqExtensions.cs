@@ -26,6 +26,7 @@ namespace WhiteRabbit.Messaging
         {
             services.AddHostedService<QueueListener>();
             services.AddTransient<IMessageReceiver, TReceiver>();
+
             return services;
         }
     }
