@@ -5,6 +5,8 @@ namespace WhiteRabbit.Messaging.Abstractions
 {
     public interface IMessageReceiver
     {
+        Type MessageType { get; }
+
         Task ReceiveAsync(IServiceProvider serviceProvider, object message);
     }
 
@@ -15,6 +17,8 @@ namespace WhiteRabbit.Messaging.Abstractions
 
     public abstract class MessageReceiver<T> : IMessageReceiver<T> where T : class
     {
+        public Type MessageType => typeof(T);
+
         public Task ReceiveAsync(IServiceProvider serviceProvider, object message)
             => ReceiveAsync(serviceProvider, (T)message);
 
