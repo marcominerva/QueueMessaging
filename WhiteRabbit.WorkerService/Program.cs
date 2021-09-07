@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using WhiteRabbit.Messaging;
 using WhiteRabbit.Receivers;
@@ -18,9 +19,9 @@ namespace WhiteRabbit.WorkerService
                 {
                     services.AddRabbitMq(settings =>
                     {
-                        settings.ConnectionString = "amqp://guest:guest@pi4dev:5672";
-                        settings.ExchangeName = "my-app";
-                        settings.QueuePrefetchCount = 2;
+                        settings.ConnectionString = hostContext.Configuration.GetConnectionString("RabbitMQ");
+                        settings.ExchangeName = hostContext.Configuration.GetValue<string>("AppSettings:ApplicationName");
+                        settings.QueuePrefetchCount = hostContext.Configuration.GetValue<ushort>("AppSettings:QueuePrefetchCount"); ;
                     }, queues =>
                     {
                         queues.Add<Test>();

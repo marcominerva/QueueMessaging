@@ -79,7 +79,7 @@ namespace WhiteRabbit.Messaging
                 stoppingToken.ThrowIfCancellationRequested();
             };
 
-            messageManager.Channel.BasicConsume(queueName, false, consumer);
+            messageManager.Channel.BasicConsume(queueName, autoAck: false, consumer);
 
             return Task.CompletedTask;
         }

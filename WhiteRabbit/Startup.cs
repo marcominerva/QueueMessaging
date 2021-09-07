@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using WhiteRabbit.Messaging;
+using WhiteRabbit.Receivers;
 using WhiteRabbit.Shared;
 
 namespace WhiteRabbit
@@ -29,16 +30,16 @@ namespace WhiteRabbit
 
             services.AddRabbitMq(settings =>
             {
-                settings.ConnectionString = "amqp://guest:guest@pi4dev:5672";
-                settings.ExchangeName = "my-app";
-                settings.QueuePrefetchCount = 2;
+                settings.ConnectionString = Configuration.GetConnectionString("RabbitMQ");
+                settings.ExchangeName = Configuration.GetValue<string>("AppSettings:ApplicationName");
+                settings.QueuePrefetchCount = Configuration.GetValue<ushort>("AppSettings:QueuePrefetchCount"); ;
             }, queues =>
             {
                 queues.Add<Test>();
                 queues.Add<Invoice>();
-            });
-            //.AddReceiver<Test, TestMessageReceiver>()
-            //.AddReceiver<Invoice, InvoiceMessageReceiver>();
+            })
+            .AddReceiver<Test, TestMessageReceiver>()
+            .AddReceiver<Invoice, InvoiceMessageReceiver>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
