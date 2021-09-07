@@ -17,9 +17,9 @@ namespace WhiteRabbit.Messaging
     internal class QueueListener<T> : BackgroundService where T : class
     {
         private readonly MessageManager messageManager;
-        private readonly QueueSettings settings;
         private readonly ILogger logger;
         private readonly IServiceProvider serviceProvider;
+        private readonly string queueName;
 
         private static readonly JsonSerializerOptions jsonSerializerOptions = new(JsonSerializerDefaults.Web)
         {
@@ -29,20 +29,23 @@ namespace WhiteRabbit.Messaging
         public QueueListener(MessageManager messageManager, QueueSettings settings, ILogger<QueueListener<T>> logger, IServiceProvider serviceProvider)
         {
             this.messageManager = messageManager;
-            this.settings = settings;
             this.logger = logger;
             this.serviceProvider = serviceProvider;
+
+            queueName = settings.Queues.First(q => q.Value == typeof(T)).Key;
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)
         {
-            logger.LogDebug("RabbitMQ Listener started");
+            logger.LogDebug("RabbitMQ Listener for {QueueName} started", queueName);
+
             return base.StartAsync(cancellationToken);
         }
 
         public override Task StopAsync(CancellationToken cancellationToken)
         {
-            logger.LogDebug("RabbitMQ Listener stopped");
+            logger.LogDebug("RabbitMQ Listener for {QueueName} stopped", queueName);
+
             return base.StopAsync(cancellationToken);
         }
 
@@ -76,8 +79,7 @@ namespace WhiteRabbit.Messaging
                 stoppingToken.ThrowIfCancellationRequested();
             };
 
-            var queue = settings.Queues.First(q => q.Value == typeof(T)).Key;
-            messageManager.Channel.BasicConsume(queue, false, consumer);
+            messageManager.Channel.BasicConsume(queueName, false, consumer);
 
             return Task.CompletedTask;
         }

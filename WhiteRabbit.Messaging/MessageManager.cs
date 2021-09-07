@@ -14,18 +14,19 @@ namespace WhiteRabbit.Messaging
     internal class MessageManager : IMessageSender, IDisposable
     {
         private const string RetryAttemptsHeader = "x-retry-attempts";
+        private const string MaxPriorityHeader = "x-max-priority";
 
         internal IConnection Connection { get; private set; }
 
         internal IModel Channel { get; private set; }
 
+        private readonly MessageManagerSettings messageManagerSettings;
+        private readonly QueueSettings queueSettings;
+
         private static readonly JsonSerializerOptions jsonSerializerOptions = new(JsonSerializerDefaults.Web)
         {
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
         };
-
-        private readonly MessageManagerSettings messageManagerSettings;
-        private readonly QueueSettings queueSettings;
 
         public MessageManager(MessageManagerSettings messageManagerSettings, QueueSettings queueSettings)
         {
@@ -45,10 +46,10 @@ namespace WhiteRabbit.Messaging
             {
                 var args = new Dictionary<string, object>
                 {
-                    ["x-max-priority"] = 10
+                    [MaxPriorityHeader] = 10
                 };
-                Channel.QueueDeclare(queue, durable: true, false, false, args);
 
+                Channel.QueueDeclare(queue, durable: true, exclusive: false, autoDelete: false, args);
                 Channel.QueueBind(queue, messageManagerSettings.ExchangeName, queue, null);
             }
 
