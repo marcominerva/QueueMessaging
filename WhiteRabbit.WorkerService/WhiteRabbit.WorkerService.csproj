@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>dotnet-WhiteRabbit.WorkerService-6DAB0823-52B5-48C4-9F92-CD2142A1091A</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WhiteRabbit.Messaging\WhiteRabbit.Messaging.csproj" />
+    <ProjectReference Include="..\WhiteRabbit.Shared\WhiteRabbit.Shared.csproj" />
+  </ItemGroup>
+</Project>

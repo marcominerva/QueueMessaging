@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using WhiteRabbit.Messaging;
-using WhiteRabbit.Receivers;
 using WhiteRabbit.Shared;
 
 namespace WhiteRabbit
@@ -37,9 +36,9 @@ namespace WhiteRabbit
             {
                 queues.Add<Test>();
                 queues.Add<Invoice>();
-            })
-            .AddReceiver<Test, TestMessageReceiver>()
-            .AddReceiver<Invoice, InvoiceMessageReceiver>();
+            });
+            //.AddReceiver<Test, TestMessageReceiver>()
+            //.AddReceiver<Invoice, InvoiceMessageReceiver>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
