@@ -1,17 +1,16 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using WhiteRabbit.Messaging.Abstractions;
 using WhiteRabbit.Shared;
 
 namespace WhiteRabbit.Receivers
 {
-    public class TestMessageReceiver : MessageReceiver<Test>
+    public class TestMessageReceiver : IMessageReceiver<Test>
     {
         public TestMessageReceiver()
         {
         }
 
-        public override Task ReceiveAsync(IServiceProvider serviceProvider, Test message)
+        public Task ReceiveAsync(Test message)
         {
             return Task.CompletedTask;
         }

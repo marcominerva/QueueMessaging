@@ -9,5 +9,8 @@ namespace WhiteRabbit.Messaging.Abstractions
 
         public void Add<T>(string queueName) where T : class
             => Queues.Add(queueName, typeof(T));
+
+        public void Add<T>() where T : class
+            => Queues.Add(typeof(T).FullName, typeof(T));
     }
 }

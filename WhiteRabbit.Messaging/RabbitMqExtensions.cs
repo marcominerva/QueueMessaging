@@ -6,7 +6,7 @@ namespace WhiteRabbit.Messaging
 {
     public static class RabbitMQExtensions
     {
-        public static IRabbitMqMessagingBuilder AddRabbitMq(this IServiceCollection services, Action<MessageManagerSettings> messageManagerConfiguration, Action<QueueSettings> queuesConfiguration)
+        public static IMessagingBuilder AddRabbitMq(this IServiceCollection services, Action<MessageManagerSettings> messageManagerConfiguration, Action<QueueSettings> queuesConfiguration)
         {
             services.AddSingleton<MessageManager>();
             services.AddSingleton<IMessageSender>(provider => provider.GetService<MessageManager>());
@@ -22,11 +22,11 @@ namespace WhiteRabbit.Messaging
             return new RabbitMqMessagingBuilder(services);
         }
 
-        public static IRabbitMqMessagingBuilder AddReceiver<TObject, TReceiver>(this IRabbitMqMessagingBuilder builder) where TObject : class
+        public static IMessagingBuilder AddReceiver<TObject, TReceiver>(this IMessagingBuilder builder) where TObject : class
             where TReceiver : class, IMessageReceiver<TObject>
         {
-            builder.Services.AddHostedService<QueueListener>();
-            builder.Services.AddSingleton<IMessageReceiver, TReceiver>();
+            builder.Services.AddHostedService<QueueListener<TObject>>();
+            builder.Services.AddTransient<IMessageReceiver<TObject>, TReceiver>();
 
             return builder;
         }

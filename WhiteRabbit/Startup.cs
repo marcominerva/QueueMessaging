@@ -35,8 +35,8 @@ namespace WhiteRabbit
                 settings.QueuePrefetchCount = 0;
             }, queues =>
             {
-                queues.Add<Test>("test.queue");
-                queues.Add<Invoice>("invoice.queue");
+                queues.Add<Test>();
+                queues.Add<Invoice>();
             })
             .AddReceiver<Test, TestMessageReceiver>()
             .AddReceiver<Invoice, InvoiceMessageReceiver>();

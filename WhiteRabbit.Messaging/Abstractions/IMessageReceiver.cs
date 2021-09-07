@@ -1,27 +1,9 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
 namespace WhiteRabbit.Messaging.Abstractions
 {
-    public interface IMessageReceiver
+    public interface IMessageReceiver<T> where T : class
     {
-        Type MessageType { get; }
-
-        Task ReceiveAsync(IServiceProvider serviceProvider, object message);
-    }
-
-    public interface IMessageReceiver<T> : IMessageReceiver where T : class
-    {
-        Task ReceiveAsync(IServiceProvider serviceProvider, T message);
-    }
-
-    public abstract class MessageReceiver<T> : IMessageReceiver<T> where T : class
-    {
-        public Type MessageType => typeof(T);
-
-        public Task ReceiveAsync(IServiceProvider serviceProvider, object message)
-            => ReceiveAsync(serviceProvider, (T)message);
-
-        public abstract Task ReceiveAsync(IServiceProvider serviceProvider, T message);
+        Task ReceiveAsync(T message);
     }
 }

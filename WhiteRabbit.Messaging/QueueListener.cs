@@ -14,11 +14,11 @@ using WhiteRabbit.Messaging.Abstractions;
 
 namespace WhiteRabbit.Messaging
 {
-    internal class QueueListener : BackgroundService
+    internal class QueueListener<T> : BackgroundService where T : class
     {
         private readonly MessageManager messageManager;
         private readonly QueueSettings settings;
-        private readonly ILogger<QueueListener> logger;
+        private readonly ILogger logger;
         private readonly IServiceProvider serviceProvider;
 
         private static readonly JsonSerializerOptions jsonSerializerOptions = new(JsonSerializerDefaults.Web)
@@ -26,7 +26,7 @@ namespace WhiteRabbit.Messaging
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
         };
 
-        public QueueListener(MessageManager messageManager, QueueSettings settings, ILogger<QueueListener> logger, IServiceProvider serviceProvider)
+        public QueueListener(MessageManager messageManager, QueueSettings settings, ILogger<QueueListener<T>> logger, IServiceProvider serviceProvider)
         {
             this.messageManager = messageManager;
             this.settings = settings;
@@ -59,12 +59,9 @@ namespace WhiteRabbit.Messaging
 
                     using var scope = serviceProvider.CreateScope();
 
-                    var messageType = settings.Queues[message.RoutingKey];
-                    var receivers = scope.ServiceProvider.GetServices<IMessageReceiver>();
-                    var receiver = receivers.First(r => r.MessageType == messageType);
-
-                    var response = JsonSerializer.Deserialize(message.Body.Span, messageType, jsonSerializerOptions);
-                    await receiver.ReceiveAsync(scope.ServiceProvider, response);
+                    var receiver = scope.ServiceProvider.GetService<IMessageReceiver<T>>();
+                    var response = JsonSerializer.Deserialize<T>(message.Body.Span, jsonSerializerOptions);
+                    await receiver.ReceiveAsync(response);
 
                     messageManager.MarkAsComplete(message);
 
@@ -79,10 +76,8 @@ namespace WhiteRabbit.Messaging
                 stoppingToken.ThrowIfCancellationRequested();
             };
 
-            foreach (var queue in settings.Queues.Keys)
-            {
-                messageManager.Channel.BasicConsume(queue, false, consumer);
-            }
+            var queue = settings.Queues.First(q => q.Value == typeof(T)).Key;
+            messageManager.Channel.BasicConsume(queue, false, consumer);
 
             return Task.CompletedTask;
         }

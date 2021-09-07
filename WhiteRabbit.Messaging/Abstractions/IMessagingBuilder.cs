@@ -2,7 +2,7 @@
 
 namespace WhiteRabbit.Messaging.Abstractions
 {
-    public interface IRabbitMqMessagingBuilder
+    public interface IMessagingBuilder
     {
         IServiceCollection Services { get; }
     }
