@@ -79,9 +79,9 @@ namespace WhiteRabbit.Messaging
             return PublishAsync(sendBytes.AsMemory(), routingKey, priority, retryAttempts);
         }
 
-        internal void MarkAsComplete(BasicDeliverEventArgs message) => Channel.BasicAck(message.DeliveryTag, false);
+        public void MarkAsComplete(BasicDeliverEventArgs message) => Channel.BasicAck(message.DeliveryTag, false);
 
-        internal void MarkAsRejected(BasicDeliverEventArgs message, bool retry = false)
+        public void MarkAsRejected(BasicDeliverEventArgs message, bool retry = false)
         {
             var remainingRetryAttempts = 0;
             if (retry && message.BasicProperties.Headers.TryGetValue(RetryAttemptsHeader, out var attempts) && attempts is int attemptsValue)
