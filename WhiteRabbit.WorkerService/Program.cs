@@ -24,9 +24,11 @@ namespace WhiteRabbit.WorkerService
                         settings.QueuePrefetchCount = hostContext.Configuration.GetValue<ushort>("AppSettings:QueuePrefetchCount"); ;
                     }, queues =>
                     {
-                        queues.Add<Order>("orders.queue");
+                        queues.Add<Order>();
+                        queues.Add<Invoice>();
                     })
-                    .AddReceiver<Order, OrderMessageReceiver>();
+                    .AddReceiver<Order, OrderMessageReceiver>()
+                    .AddReceiver<Invoice, InvoiceMessageReceiver>();
                 });
     }
 }

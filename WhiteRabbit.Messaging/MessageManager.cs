@@ -102,8 +102,21 @@ namespace WhiteRabbit.Messaging
 
         public void Dispose()
         {
-            Channel.Close();
-            Connection.Close();
+            try
+            {
+                if (Channel.IsOpen)
+                {
+                    Channel.Close();
+                }
+
+                if (Connection.IsOpen)
+                {
+                    Connection.Close();
+                }
+            }
+            catch
+            {
+            }
 
             GC.SuppressFinalize(this);
         }

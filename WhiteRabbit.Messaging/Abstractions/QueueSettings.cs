@@ -7,10 +7,10 @@ namespace WhiteRabbit.Messaging.Abstractions
     {
         internal IDictionary<string, Type> Queues { get; } = new Dictionary<string, Type>();
 
-        public void Add<T>(string queueName) where T : class
-            => Queues.Add(queueName, typeof(T));
-
-        public void Add<T>() where T : class
-            => Queues.Add(typeof(T).FullName, typeof(T));
+        public void Add<T>(string queueName = null) where T : class
+        {
+            var type = typeof(T);
+            Queues.Add(queueName ?? type.FullName, type);
+        }
     }
 }
