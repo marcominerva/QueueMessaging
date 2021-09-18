@@ -35,11 +35,9 @@ namespace WhiteRabbit
                 settings.QueuePrefetchCount = Configuration.GetValue<ushort>("AppSettings:QueuePrefetchCount"); ;
             }, queues =>
             {
-                queues.Add<Test>();
-                queues.Add<Invoice>();
+                queues.Add<Order>("orders.queue");
             })
-            .AddReceiver<Test, TestMessageReceiver>()
-            .AddReceiver<Invoice, InvoiceMessageReceiver>();
+            .AddReceiver<Order, OrderMessageReceiver>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

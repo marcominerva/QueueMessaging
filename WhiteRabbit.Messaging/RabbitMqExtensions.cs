@@ -6,18 +6,24 @@ namespace WhiteRabbit.Messaging
 {
     public static class RabbitMQExtensions
     {
-        public static IMessagingBuilder AddRabbitMq(this IServiceCollection services, Action<MessageManagerSettings> messageManagerConfiguration, Action<QueueSettings> queuesConfiguration)
+        public static IMessagingBuilder AddRabbitMq(this IServiceCollection services, Action<MessageManagerSettings> messageManagerConfiguration = null, Action<QueueSettings> queuesConfiguration = null)
         {
             services.AddSingleton<MessageManager>();
             services.AddSingleton<IMessageSender>(provider => provider.GetService<MessageManager>());
 
-            var messageManagerSettings = new MessageManagerSettings();
-            messageManagerConfiguration?.Invoke(messageManagerSettings);
-            services.AddSingleton(messageManagerSettings);
+            if (messageManagerConfiguration != null)
+            {
+                var messageManagerSettings = new MessageManagerSettings();
+                messageManagerConfiguration.Invoke(messageManagerSettings);
+                services.AddSingleton(messageManagerSettings);
+            }
 
-            var queueSettings = new QueueSettings();
-            queuesConfiguration?.Invoke(queueSettings);
-            services.AddSingleton(queueSettings);
+            if (queuesConfiguration != null)
+            {
+                var queueSettings = new QueueSettings();
+                queuesConfiguration.Invoke(queueSettings);
+                services.AddSingleton(queueSettings);
+            }
 
             return new RabbitMqMessagingBuilder(services);
         }
