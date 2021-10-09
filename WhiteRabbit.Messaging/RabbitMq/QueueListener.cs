@@ -12,7 +12,7 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using WhiteRabbit.Messaging.Abstractions;
 
-namespace WhiteRabbit.Messaging
+namespace WhiteRabbit.Messaging.RabbitMq
 {
     internal class QueueListener<T> : BackgroundService where T : class
     {

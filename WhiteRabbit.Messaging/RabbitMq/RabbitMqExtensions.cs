@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using WhiteRabbit.Messaging.Abstractions;
 
-namespace WhiteRabbit.Messaging
+namespace WhiteRabbit.Messaging.RabbitMq
 {
     public static class RabbitMQExtensions
     {
@@ -25,7 +25,7 @@ namespace WhiteRabbit.Messaging
                 services.AddSingleton(queueSettings);
             }
 
-            return new RabbitMqMessagingBuilder(services);
+            return new DefaultMessagingBuilder(services);
         }
 
         public static IMessagingBuilder AddReceiver<TObject, TReceiver>(this IMessagingBuilder builder) where TObject : class

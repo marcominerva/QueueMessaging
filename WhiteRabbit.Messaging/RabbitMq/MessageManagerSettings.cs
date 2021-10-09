@@ -1,4 +1,4 @@
-﻿namespace WhiteRabbit.Messaging.Abstractions
+﻿namespace WhiteRabbit.Messaging.RabbitMq
 {
     public class MessageManagerSettings
     {

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using WhiteRabbit.Messaging;
+using WhiteRabbit.Messaging.RabbitMq;
 using WhiteRabbit.Receivers;
 using WhiteRabbit.Shared;
 
