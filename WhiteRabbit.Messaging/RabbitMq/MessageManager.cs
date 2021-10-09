@@ -13,7 +13,6 @@ namespace WhiteRabbit.Messaging.RabbitMq
 {
     internal class MessageManager : IMessageSender, IDisposable
     {
-        private const string RetryAttemptsHeader = "x-retry-attempts";
         private const string MaxPriorityHeader = "x-max-priority";
 
         internal IConnection Connection { get; private set; }
@@ -57,48 +56,27 @@ namespace WhiteRabbit.Messaging.RabbitMq
             this.queueSettings = queueSettings;
         }
 
-        private Task PublishAsync(ReadOnlyMemory<byte> body, string routingKey, int priority = 1, int retryAttempts = 0)
+        private Task PublishAsync(ReadOnlyMemory<byte> body, string routingKey, int priority = 1)
         {
             var properties = Channel.CreateBasicProperties();
             properties.Persistent = true;
             properties.Priority = Convert.ToByte(priority);
-            properties.Headers = new Dictionary<string, object>
-            {
-                [RetryAttemptsHeader] = retryAttempts
-            };
 
             Channel.BasicPublish(messageManagerSettings.ExchangeName, routingKey, properties, body);
             return Task.CompletedTask;
         }
 
-        public Task PublishAsync<T>(T message, int priority = 1, int retryAttempts = 0) where T : class
+        public Task PublishAsync<T>(T message, int priority = 1) where T : class
         {
             var sendBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message, jsonSerializerOptions));
 
             var routingKey = queueSettings.Queues.First(q => q.Value == typeof(T)).Key;
-            return PublishAsync(sendBytes.AsMemory(), routingKey, priority, retryAttempts);
+            return PublishAsync(sendBytes.AsMemory(), routingKey, priority);
         }
 
         public void MarkAsComplete(BasicDeliverEventArgs message) => Channel.BasicAck(message.DeliveryTag, false);
 
-        public void MarkAsRejected(BasicDeliverEventArgs message, bool retry = false)
-        {
-            var remainingRetryAttempts = 0;
-            if (retry && message.BasicProperties.Headers.TryGetValue(RetryAttemptsHeader, out var attempts) && attempts is int attemptsValue)
-            {
-                remainingRetryAttempts = attemptsValue - 1;
-            }
-
-            if (remainingRetryAttempts <= 0)
-            {
-                Channel.BasicReject(message.DeliveryTag, false);
-            }
-            else
-            {
-                Channel.BasicNack(message.DeliveryTag, false, false);
-                PublishAsync(message.Body, message.RoutingKey, message.BasicProperties.Priority, remainingRetryAttempts);
-            }
-        }
+        public void MarkAsRejected(BasicDeliverEventArgs message) => Channel.BasicReject(message.DeliveryTag, false);
 
         public void Dispose()
         {

@@ -72,7 +72,7 @@ namespace WhiteRabbit.Messaging.RabbitMq
                 }
                 catch (Exception ex)
                 {
-                    messageManager.MarkAsRejected(message, retry: true);
+                    messageManager.MarkAsRejected(message);
                     logger.LogError(ex, "Unexpected error while processing message");
                 }
 
