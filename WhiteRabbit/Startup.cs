@@ -32,7 +32,7 @@ namespace WhiteRabbit
             {
                 settings.ConnectionString = Configuration.GetConnectionString("RabbitMQ");
                 settings.ExchangeName = Configuration.GetValue<string>("AppSettings:ApplicationName");
-                settings.QueuePrefetchCount = Configuration.GetValue<ushort>("AppSettings:QueuePrefetchCount"); ;
+                settings.QueuePrefetchCount = Configuration.GetValue<ushort>("AppSettings:QueuePrefetchCount");
             }, queues =>
             {
                 queues.Add<Order>();
@@ -40,6 +40,17 @@ namespace WhiteRabbit
             })
             .AddReceiver<Order, OrderMessageReceiver>()
             .AddReceiver<Invoice, InvoiceMessageReceiver>();
+
+            //services.AddServiceBus(settings =>
+            //{
+            //    settings.ConnectionString = Configuration.GetConnectionString("ServiceBus");
+            //}, queues =>
+            //{
+            //    queues.Add<Order>();
+            //    queues.Add<Invoice>();
+            //})
+            //.AddReceiver<Order, OrderMessageReceiver>()
+            //.AddReceiver<Invoice, InvoiceMessageReceiver>(); 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using WhiteRabbit.Messaging;
+using WhiteRabbit.Messaging.RabbitMq;
 using WhiteRabbit.Receivers;
 using WhiteRabbit.Shared;
 
@@ -29,6 +29,17 @@ namespace WhiteRabbit.WorkerService
                     })
                     .AddReceiver<Order, OrderMessageReceiver>()
                     .AddReceiver<Invoice, InvoiceMessageReceiver>();
+
+                    //services.AddServiceBus(settings =>
+                    //{
+                    //    settings.ConnectionString = hostContext.Configuration.GetConnectionString("ServiceBus");
+                    //}, queues =>
+                    //{
+                    //    queues.Add<Order>();
+                    //    queues.Add<Invoice>();
+                    //})
+                    //.AddReceiver<Order, OrderMessageReceiver>()
+                    //.AddReceiver<Invoice, InvoiceMessageReceiver>();
                 });
     }
 }
