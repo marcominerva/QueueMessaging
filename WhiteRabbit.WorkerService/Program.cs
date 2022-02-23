@@ -1,45 +1,37 @@
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using WhiteRabbit.Messaging.RabbitMq;
 using WhiteRabbit.Receivers;
 using WhiteRabbit.Shared;
 
-namespace WhiteRabbit.WorkerService
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureServices(ConfigureServices)
+    .Build();
+
+await host.RunAsync();
+
+
+void ConfigureServices(HostBuilderContext hostingContext, IServiceCollection services)
 {
-    public class Program
+    services.AddRabbitMq(settings =>
     {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+        settings.ConnectionString = hostingContext.Configuration.GetConnectionString("RabbitMQ");
+        settings.ExchangeName = hostingContext.Configuration.GetValue<string>("AppSettings:ApplicationName");
+        settings.QueuePrefetchCount = hostingContext.Configuration.GetValue<ushort>("AppSettings:QueuePrefetchCount"); ;
+    }, queues =>
+    {
+        queues.Add<Order>();
+        queues.Add<Invoice>();
+    })
+    .AddReceiver<Order, OrderMessageReceiver>()
+    .AddReceiver<Invoice, InvoiceMessageReceiver>();
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureServices((hostContext, services) =>
-                {
-                    services.AddRabbitMq(settings =>
-                    {
-                        settings.ConnectionString = hostContext.Configuration.GetConnectionString("RabbitMQ");
-                        settings.ExchangeName = hostContext.Configuration.GetValue<string>("AppSettings:ApplicationName");
-                        settings.QueuePrefetchCount = hostContext.Configuration.GetValue<ushort>("AppSettings:QueuePrefetchCount"); ;
-                    }, queues =>
-                    {
-                        queues.Add<Order>();
-                        queues.Add<Invoice>();
-                    })
-                    .AddReceiver<Order, OrderMessageReceiver>()
-                    .AddReceiver<Invoice, InvoiceMessageReceiver>();
-
-                    //services.AddServiceBus(settings =>
-                    //{
-                    //    settings.ConnectionString = hostContext.Configuration.GetConnectionString("ServiceBus");
-                    //}, queues =>
-                    //{
-                    //    queues.Add<Order>();
-                    //    queues.Add<Invoice>();
-                    //})
-                    //.AddReceiver<Order, OrderMessageReceiver>()
-                    //.AddReceiver<Invoice, InvoiceMessageReceiver>();
-                });
-    }
+    //services.AddServiceBus(settings =>
+    //{
+    //    settings.ConnectionString = hostContext.Configuration.GetConnectionString("ServiceBus");
+    //}, queues =>
+    //{
+    //    queues.Add<Order>();
+    //    queues.Add<Invoice>();
+    //})
+    //.AddReceiver<Order, OrderMessageReceiver>()
+    //.AddReceiver<Invoice, InvoiceMessageReceiver>();    })
 }
