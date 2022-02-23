@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using System;
 using WhiteRabbit.Messaging.Abstractions;
 
 namespace WhiteRabbit.Messaging.ServiceBus;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace WhiteRabbit.Messaging.Abstractions;
+﻿namespace WhiteRabbit.Messaging.Abstractions;
 
 public class QueueSettings
 {

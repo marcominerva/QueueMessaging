@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace WhiteRabbit.Shared;
+﻿namespace WhiteRabbit.Shared;
 
 public class Order
 {

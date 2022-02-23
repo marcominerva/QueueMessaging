@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using WhiteRabbit.Messaging.Abstractions;
+﻿using WhiteRabbit.Messaging.Abstractions;
 using WhiteRabbit.Shared;
 
 namespace WhiteRabbit.Receivers;
@@ -21,7 +18,7 @@ public class OrderMessageReceiver : IMessageReceiver<Order>
     {
         logger.LogInformation("Processing order {OrderNumber}...", message.Number);
 
-        await Task.Delay(TimeSpan.FromSeconds(10 + new Random().Next(10)));
+        await Task.Delay(TimeSpan.FromSeconds(10 + Random.Shared.Next(10)));
 
         logger.LogInformation("End processing order {OrderNumber}", message.Number);
 

@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace WhiteRabbit.Messaging.Abstractions;
+﻿namespace WhiteRabbit.Messaging.Abstractions;
 
 public interface IMessageSender
 {

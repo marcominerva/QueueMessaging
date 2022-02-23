@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using WhiteRabbit.Messaging.Abstractions;
+﻿using WhiteRabbit.Messaging.Abstractions;
 using WhiteRabbit.Shared;
 
 namespace WhiteRabbit.Receivers;
@@ -19,7 +16,7 @@ public class InvoiceMessageReceiver : IMessageReceiver<Invoice>
     {
         logger.LogInformation("Creating invoice for order {OrderNumber}...", message.OrderNumber);
 
-        await Task.Delay(TimeSpan.FromSeconds(10 + new Random().Next(10)));
+        await Task.Delay(TimeSpan.FromSeconds(10 + Random.Shared.Next(10)));
 
         logger.LogInformation("End creating invoice for order {OrderNumber}", message.OrderNumber);
     }

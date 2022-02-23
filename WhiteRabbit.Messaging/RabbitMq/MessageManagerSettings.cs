@@ -6,5 +6,5 @@ public class MessageManagerSettings
 
     public string ExchangeName { get; set; }
 
-    public ushort QueuePrefetchCount { get; set; } = 0;
+    public ushort QueuePrefetchCount { get; set; }
 }

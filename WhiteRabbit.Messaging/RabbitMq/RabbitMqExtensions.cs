@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using WhiteRabbit.Messaging.Abstractions;
 
 namespace WhiteRabbit.Messaging.RabbitMq;
