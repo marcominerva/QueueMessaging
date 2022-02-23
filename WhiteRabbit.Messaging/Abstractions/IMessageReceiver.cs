@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace WhiteRabbit.Messaging.Abstractions
+namespace WhiteRabbit.Messaging.Abstractions;
+
+public interface IMessageReceiver<T> where T : class
 {
-    public interface IMessageReceiver<T> where T : class
-    {
-        Task ReceiveAsync(T message);
-    }
+    Task ReceiveAsync(T message);
 }

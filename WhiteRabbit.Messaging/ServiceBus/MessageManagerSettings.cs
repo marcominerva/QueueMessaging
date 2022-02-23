@@ -1,7 +1,6 @@
-﻿namespace WhiteRabbit.Messaging.ServiceBus
+﻿namespace WhiteRabbit.Messaging.ServiceBus;
+
+public class MessageManagerSettings
 {
-    public class MessageManagerSettings
-    {
-        public string ConnectionString { get; set; }
-    }
+    public string ConnectionString { get; set; }
 }

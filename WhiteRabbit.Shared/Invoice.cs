@@ -1,7 +1,6 @@
-﻿namespace WhiteRabbit.Shared
+﻿namespace WhiteRabbit.Shared;
+
+public class Invoice
 {
-    public class Invoice
-    {
-        public int OrderNumber { get; set; }
-    }
+    public int OrderNumber { get; set; }
 }

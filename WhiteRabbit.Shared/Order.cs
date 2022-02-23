@@ -1,15 +1,14 @@
 ﻿using System;
 
-namespace WhiteRabbit.Shared
+namespace WhiteRabbit.Shared;
+
+public class Order
 {
-    public class Order
-    {
-        public int Number { get; set; }
+    public int Number { get; set; }
 
-        public string User { get; set; }
+    public string User { get; set; }
 
-        public DateTime Date { get; set; }
+    public DateTime Date { get; set; }
 
-        public double Amount { get; set; }
-    }
+    public double Amount { get; set; }
 }

@@ -1,11 +1,10 @@
-﻿namespace WhiteRabbit.Messaging.RabbitMq
+﻿namespace WhiteRabbit.Messaging.RabbitMq;
+
+public class MessageManagerSettings
 {
-    public class MessageManagerSettings
-    {
-        public string ConnectionString { get; set; }
+    public string ConnectionString { get; set; }
 
-        public string ExchangeName { get; set; }
+    public string ExchangeName { get; set; }
 
-        public ushort QueuePrefetchCount { get; set; } = 0;
-    }
+    public ushort QueuePrefetchCount { get; set; } = 0;
 }

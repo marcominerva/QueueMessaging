@@ -1,14 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace WhiteRabbit.Messaging.Abstractions
-{
-    internal class DefaultMessagingBuilder : IMessagingBuilder
-    {
-        public IServiceCollection Services { get; }
+namespace WhiteRabbit.Messaging.Abstractions;
 
-        public DefaultMessagingBuilder(IServiceCollection services)
-        {
-            Services = services;
-        }
+internal class DefaultMessagingBuilder : IMessagingBuilder
+{
+    public IServiceCollection Services { get; }
+
+    public DefaultMessagingBuilder(IServiceCollection services)
+    {
+        Services = services;
     }
 }
