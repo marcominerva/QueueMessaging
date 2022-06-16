@@ -12,7 +12,7 @@ tab_width = 4
 trim_trailing_whitespace = true
 
 # New line preferences
-end_of_line = unset
+end_of_line = crlf
 insert_final_newline = unset
 
 dotnet_style_null_propagation = true:suggestion
