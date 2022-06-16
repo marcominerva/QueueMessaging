@@ -12,13 +12,15 @@ namespace WhiteRabbit.Messaging.RabbitMq;
 internal class QueueListener<T> : BackgroundService where T : class
 {
     private readonly MessageManager messageManager;
+    private readonly MessageManagerSettings messageManagerSettings;
     private readonly ILogger logger;
     private readonly IServiceProvider serviceProvider;
     private readonly string queueName;
 
-    public QueueListener(MessageManager messageManager, QueueSettings settings, ILogger<QueueListener<T>> logger, IServiceProvider serviceProvider)
+    public QueueListener(MessageManager messageManager, MessageManagerSettings messageManagerSettings, QueueSettings settings, ILogger<QueueListener<T>> logger, IServiceProvider serviceProvider)
     {
         this.messageManager = messageManager;
+        this.messageManagerSettings = messageManagerSettings;
         this.logger = logger;
         this.serviceProvider = serviceProvider;
 
@@ -53,7 +55,7 @@ internal class QueueListener<T> : BackgroundService where T : class
                 using var scope = serviceProvider.CreateScope();
 
                 var receiver = scope.ServiceProvider.GetRequiredService<IMessageReceiver<T>>();
-                var response = JsonSerializer.Deserialize<T>(message.Body.Span, JsonOptions.Default);
+                var response = JsonSerializer.Deserialize<T>(message.Body.Span, messageManagerSettings.JsonSerializerOptions ?? JsonOptions.Default);
                 await receiver.ReceiveAsync(response);
 
                 messageManager.MarkAsComplete(message);

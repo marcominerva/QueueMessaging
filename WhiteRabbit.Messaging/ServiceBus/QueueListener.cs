@@ -11,15 +11,17 @@ namespace WhiteRabbit.Messaging.ServiceBus;
 internal class QueueListener<T> : BackgroundService, IAsyncDisposable where T : class
 {
     private readonly MessageManager messageManager;
+    private readonly MessageManagerSettings messageManagerSettings;
     private readonly ILogger logger;
     private readonly IServiceProvider serviceProvider;
     private readonly string queueName;
 
     private ServiceBusReceiver serviceBusReceiver;
 
-    public QueueListener(MessageManager messageManager, QueueSettings settings, ILogger<QueueListener<T>> logger, IServiceProvider serviceProvider)
+    public QueueListener(MessageManager messageManager, MessageManagerSettings messageManagerSettings, QueueSettings settings, ILogger<QueueListener<T>> logger, IServiceProvider serviceProvider)
     {
         this.messageManager = messageManager;
+        this.messageManagerSettings = messageManagerSettings;
         this.logger = logger;
         this.serviceProvider = serviceProvider;
 
@@ -49,7 +51,7 @@ internal class QueueListener<T> : BackgroundService, IAsyncDisposable where T : 
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var message = await serviceBusReceiver.ReceiveMessageAsync();
+            var message = await serviceBusReceiver.ReceiveMessageAsync(cancellationToken: stoppingToken);
             if (message != null)
             {
                 try
@@ -59,7 +61,7 @@ internal class QueueListener<T> : BackgroundService, IAsyncDisposable where T : 
                     using var scope = serviceProvider.CreateScope();
 
                     var receiver = scope.ServiceProvider.GetService<IMessageReceiver<T>>();
-                    var response = JsonSerializer.Deserialize<T>(message.Body, JsonOptions.Default);
+                    var response = JsonSerializer.Deserialize<T>(message.Body, messageManagerSettings.JsonSerializerOptions ?? JsonOptions.Default);
                     await receiver.ReceiveAsync(response);
 
                     logger.LogDebug("Message processed");
@@ -70,7 +72,7 @@ internal class QueueListener<T> : BackgroundService, IAsyncDisposable where T : 
                 }
                 finally
                 {
-                    await serviceBusReceiver.CompleteMessageAsync(message);
+                    await serviceBusReceiver.CompleteMessageAsync(message, stoppingToken);
                 }
             }
         }

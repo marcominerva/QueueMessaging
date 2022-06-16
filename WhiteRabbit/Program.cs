@@ -14,6 +14,7 @@ app.Run();
 void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
     services.AddControllers();
+
     services.AddSwaggerGen(options =>
     {
         options.SwaggerDoc("v1", new OpenApiInfo { Title = "WhiteRabbit", Version = "v1" });
@@ -56,8 +57,6 @@ void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     app.UseHttpsRedirection();
 
     app.UseRouting();
-
-    app.UseAuthorization();
 
     app.UseEndpoints(endpoints =>
     {

@@ -63,7 +63,7 @@ internal class MessageManager : IMessageSender, IAsyncDisposable
 
     public Task PublishAsync<T>(T message, int priority = 1) where T : class
     {
-        var sendBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize<object>(message, JsonOptions.Default));
+        var sendBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize<object>(message, messageManagerSettings.JsonSerializerOptions ?? JsonOptions.Default));
 
         var routingKey = queueSettings.Queues.First(q => q.Type == typeof(T)).Name;
         return PublishAsync(sendBytes.AsMemory(), routingKey, priority);
