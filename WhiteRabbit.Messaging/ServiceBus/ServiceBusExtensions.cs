@@ -5,24 +5,18 @@ namespace WhiteRabbit.Messaging.ServiceBus;
 
 public static class ServiceBusExtensions
 {
-    public static IMessagingBuilder AddServiceBus(this IServiceCollection services, Action<MessageManagerSettings> messageManagerConfiguration = null, Action<QueueSettings> queuesConfiguration = null)
+    public static IMessagingBuilder AddServiceBus(this IServiceCollection services, Action<MessageManagerSettings> messageManagerConfiguration, Action<QueueSettings> queuesConfiguration)
     {
         services.AddSingleton<MessageManager>();
         services.AddSingleton<IMessageSender>(provider => provider.GetService<MessageManager>());
 
-        if (messageManagerConfiguration != null)
-        {
-            var messageManagerSettings = new MessageManagerSettings();
-            messageManagerConfiguration.Invoke(messageManagerSettings);
-            services.AddSingleton(messageManagerSettings);
-        }
+        var messageManagerSettings = new MessageManagerSettings();
+        messageManagerConfiguration.Invoke(messageManagerSettings);
+        services.AddSingleton(messageManagerSettings);
 
-        if (queuesConfiguration != null)
-        {
-            var queueSettings = new QueueSettings();
-            queuesConfiguration.Invoke(queueSettings);
-            services.AddSingleton(queueSettings);
-        }
+        var queueSettings = new QueueSettings();
+        queuesConfiguration.Invoke(queueSettings);
+        services.AddSingleton(queueSettings);
 
         return new DefaultMessagingBuilder(services);
     }
