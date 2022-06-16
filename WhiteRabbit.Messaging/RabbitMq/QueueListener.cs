@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -17,18 +16,13 @@ internal class QueueListener<T> : BackgroundService where T : class
     private readonly IServiceProvider serviceProvider;
     private readonly string queueName;
 
-    private static readonly JsonSerializerOptions jsonSerializerOptions = new(JsonSerializerDefaults.Web)
-    {
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
-    };
-
     public QueueListener(MessageManager messageManager, QueueSettings settings, ILogger<QueueListener<T>> logger, IServiceProvider serviceProvider)
     {
         this.messageManager = messageManager;
         this.logger = logger;
         this.serviceProvider = serviceProvider;
 
-        queueName = settings.Queues.First(q => q.Value == typeof(T)).Key;
+        queueName = settings.Queues.First(q => q.Type == typeof(T)).Name;
     }
 
     public override Task StartAsync(CancellationToken cancellationToken)
@@ -59,7 +53,7 @@ internal class QueueListener<T> : BackgroundService where T : class
                 using var scope = serviceProvider.CreateScope();
 
                 var receiver = scope.ServiceProvider.GetRequiredService<IMessageReceiver<T>>();
-                var response = JsonSerializer.Deserialize<T>(message.Body.Span, jsonSerializerOptions);
+                var response = JsonSerializer.Deserialize<T>(message.Body.Span, JsonOptions.Default);
                 await receiver.ReceiveAsync(response);
 
                 messageManager.MarkAsComplete(message);

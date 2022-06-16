@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using WhiteRabbit.Messaging.Abstractions;
@@ -18,11 +17,6 @@ internal class MessageManager : IMessageSender, IDisposable
     private readonly MessageManagerSettings messageManagerSettings;
     private readonly QueueSettings queueSettings;
 
-    private static readonly JsonSerializerOptions jsonSerializerOptions = new(JsonSerializerDefaults.Web)
-    {
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
-    };
-
     public MessageManager(MessageManagerSettings messageManagerSettings, QueueSettings queueSettings)
     {
         var factory = new ConnectionFactory { Uri = new Uri(messageManagerSettings.ConnectionString) };
@@ -37,15 +31,15 @@ internal class MessageManager : IMessageSender, IDisposable
 
         Channel.ExchangeDeclare(messageManagerSettings.ExchangeName, ExchangeType.Direct, durable: true);
 
-        foreach (var queue in queueSettings.Queues.Keys)
+        foreach (var queue in queueSettings.Queues)
         {
             var args = new Dictionary<string, object>
             {
                 [MaxPriorityHeader] = 10
             };
 
-            Channel.QueueDeclare(queue, durable: true, exclusive: false, autoDelete: false, args);
-            Channel.QueueBind(queue, messageManagerSettings.ExchangeName, queue, null);
+            Channel.QueueDeclare(queue.Name, durable: true, exclusive: false, autoDelete: false, args);
+            Channel.QueueBind(queue.Name, messageManagerSettings.ExchangeName, queue.Name, null);
         }
 
         this.messageManagerSettings = messageManagerSettings;
@@ -64,9 +58,9 @@ internal class MessageManager : IMessageSender, IDisposable
 
     public Task PublishAsync<T>(T message, int priority = 1) where T : class
     {
-        var sendBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize<object>(message, jsonSerializerOptions));
+        var sendBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize<object>(message, JsonOptions.Default));
 
-        var routingKey = queueSettings.Queues.First(q => q.Value == typeof(T)).Key;
+        var routingKey = queueSettings.Queues.First(q => q.Type == typeof(T)).Name;
         return PublishAsync(sendBytes.AsMemory(), routingKey, priority);
     }
 

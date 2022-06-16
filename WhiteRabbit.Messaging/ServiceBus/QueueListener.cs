@@ -1,10 +1,9 @@
-﻿using Azure.Messaging.ServiceBus;
+﻿using System.Text;
+using System.Text.Json;
+using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using WhiteRabbit.Messaging.Abstractions;
 
 namespace WhiteRabbit.Messaging.ServiceBus;
@@ -18,18 +17,13 @@ internal class QueueListener<T> : BackgroundService, IAsyncDisposable where T : 
 
     private ServiceBusReceiver serviceBusReceiver;
 
-    private static readonly JsonSerializerOptions jsonSerializerOptions = new(JsonSerializerDefaults.Web)
-    {
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
-    };
-
     public QueueListener(MessageManager messageManager, QueueSettings settings, ILogger<QueueListener<T>> logger, IServiceProvider serviceProvider)
     {
         this.messageManager = messageManager;
         this.logger = logger;
         this.serviceProvider = serviceProvider;
 
-        queueName = settings.Queues.First(q => q.Value == typeof(T)).Key;
+        queueName = settings.Queues.First(q => q.Type == typeof(T)).Name;
     }
 
     public override Task StartAsync(CancellationToken cancellationToken)
@@ -65,7 +59,7 @@ internal class QueueListener<T> : BackgroundService, IAsyncDisposable where T : 
                     using var scope = serviceProvider.CreateScope();
 
                     var receiver = scope.ServiceProvider.GetService<IMessageReceiver<T>>();
-                    var response = JsonSerializer.Deserialize<T>(message.Body, jsonSerializerOptions);
+                    var response = JsonSerializer.Deserialize<T>(message.Body, JsonOptions.Default);
                     await receiver.ReceiveAsync(response);
 
                     logger.LogDebug("Message processed");

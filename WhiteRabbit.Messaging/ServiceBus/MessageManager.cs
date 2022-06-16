@@ -1,8 +1,7 @@
-﻿using Azure.Messaging.ServiceBus;
-using Azure.Messaging.ServiceBus.Administration;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using Azure.Messaging.ServiceBus;
+using Azure.Messaging.ServiceBus.Administration;
 using WhiteRabbit.Messaging.Abstractions;
 
 namespace WhiteRabbit.Messaging.ServiceBus;
@@ -17,11 +16,6 @@ internal class MessageManager : IMessageSender, IAsyncDisposable
     private readonly MessageManagerSettings messageManagerSettings;
     private readonly QueueSettings queueSettings;
 
-    private static readonly JsonSerializerOptions jsonSerializerOptions = new(JsonSerializerDefaults.Web)
-    {
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
-    };
-
     public MessageManager(MessageManagerSettings messageManagerSettings, QueueSettings queueSettings)
     {
         ServiceBus = new(messageManagerSettings.ConnectionString);
@@ -32,16 +26,16 @@ internal class MessageManager : IMessageSender, IAsyncDisposable
             var senders = new Dictionary<string, ServiceBusSender>();
 
             var allQueues = await administrationClient.GetQueuesAsync().ToListAsync();
-            foreach (var queue in queueSettings.Queues.Keys)
+            foreach (var queue in queueSettings.Queues)
             {
-                var foundQueue = allQueues.FirstOrDefault(q => q.Name.ToUpperInvariant() == queue.ToUpperInvariant());
+                var foundQueue = allQueues.FirstOrDefault(q => q.Name.ToUpperInvariant() == queue.Name.ToUpperInvariant());
                 if (foundQueue == null)
                 {
-                    await administrationClient.CreateQueueAsync(queue);
+                    await administrationClient.CreateQueueAsync(queue.Name);
                 }
 
-                var sender = ServiceBus.CreateSender(queue);
-                senders.Add(queue, sender);
+                var sender = ServiceBus.CreateSender(queue.Name);
+                senders.Add(queue.Name, sender);
             }
 
             return senders;
@@ -69,9 +63,9 @@ internal class MessageManager : IMessageSender, IAsyncDisposable
 
     public Task PublishAsync<T>(T message, int priority = 1) where T : class
     {
-        var sendBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message, jsonSerializerOptions));
+        var sendBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize<object>(message, JsonOptions.Default));
 
-        var routingKey = queueSettings.Queues.First(q => q.Value == typeof(T)).Key;
+        var routingKey = queueSettings.Queues.First(q => q.Type == typeof(T)).Name;
         return PublishAsync(sendBytes.AsMemory(), routingKey, priority);
     }
 

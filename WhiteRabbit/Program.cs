@@ -1,5 +1,5 @@
 using Microsoft.OpenApi.Models;
-using WhiteRabbit.Messaging.RabbitMq;
+using WhiteRabbit.Messaging.ServiceBus;
 using WhiteRabbit.Receivers;
 using WhiteRabbit.Shared;
 
@@ -19,11 +19,22 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
         options.SwaggerDoc("v1", new OpenApiInfo { Title = "WhiteRabbit", Version = "v1" });
     });
 
-    services.AddRabbitMq(settings =>
+    //services.AddRabbitMq(settings =>
+    //{
+    //    settings.ConnectionString = configuration.GetConnectionString("RabbitMQ");
+    //    settings.ExchangeName = configuration.GetValue<string>("AppSettings:ApplicationName");
+    //    settings.QueuePrefetchCount = configuration.GetValue<ushort>("AppSettings:QueuePrefetchCount");
+    //}, queues =>
+    //{
+    //    queues.Add<Order>();
+    //    queues.Add<Invoice>();
+    //})
+    //.AddReceiver<Order, OrderMessageReceiver>()
+    //.AddReceiver<Invoice, InvoiceMessageReceiver>();
+
+    services.AddServiceBus(settings =>
     {
-        settings.ConnectionString = configuration.GetConnectionString("RabbitMQ");
-        settings.ExchangeName = configuration.GetValue<string>("AppSettings:ApplicationName");
-        settings.QueuePrefetchCount = configuration.GetValue<ushort>("AppSettings:QueuePrefetchCount");
+        settings.ConnectionString = configuration.GetConnectionString("ServiceBus");
     }, queues =>
     {
         queues.Add<Order>();
@@ -31,17 +42,6 @@ void ConfigureServices(IServiceCollection services, IConfiguration configuration
     })
     .AddReceiver<Order, OrderMessageReceiver>()
     .AddReceiver<Invoice, InvoiceMessageReceiver>();
-
-    //services.AddServiceBus(settings =>
-    //{
-    //    settings.ConnectionString = Configuration.GetConnectionString("ServiceBus");
-    //}, queues =>
-    //{
-    //    queues.Add<Order>();
-    //    queues.Add<Invoice>();
-    //})
-    //.AddReceiver<Order, OrderMessageReceiver>()
-    //.AddReceiver<Invoice, InvoiceMessageReceiver>(); 
 }
 
 void Configure(IApplicationBuilder app, IWebHostEnvironment env)
