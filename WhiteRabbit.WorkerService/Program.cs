@@ -18,7 +18,6 @@ void ConfigureServices(HostBuilderContext hostingContext, IServiceCollection ser
         settings.ConnectionString = configuration.GetConnectionString("RabbitMQ");
         settings.ExchangeName = configuration.GetValue<string>("AppSettings:ApplicationName");
         settings.QueuePrefetchCount = configuration.GetValue<ushort>("AppSettings:QueuePrefetchCount");
-        ;
     }, queues =>
     {
         queues.Add<Order>();
