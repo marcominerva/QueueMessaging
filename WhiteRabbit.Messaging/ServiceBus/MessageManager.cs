@@ -28,8 +28,8 @@ internal class MessageManager : IMessageSender, IAsyncDisposable
             var allQueues = await administrationClient.GetQueuesAsync().ToListAsync();
             foreach (var queue in queueSettings.Queues)
             {
-                var foundQueue = allQueues.FirstOrDefault(q => q.Name.ToUpperInvariant() == queue.Name.ToUpperInvariant());
-                if (foundQueue == null)
+                var queueExists = allQueues.Any(q => q.Name.ToUpperInvariant() == queue.Name.ToUpperInvariant());
+                if (!queueExists)
                 {
                     await administrationClient.CreateQueueAsync(queue.Name);
                 }
@@ -54,19 +54,20 @@ internal class MessageManager : IMessageSender, IAsyncDisposable
         }
     }
 
-    private async Task PublishAsync(ReadOnlyMemory<byte> body, string routingKey, int priority = 1)
-    {
-        var senderList = await senders.Value;
-        var sender = senderList[routingKey];
-        await sender.SendMessageAsync(new ServiceBusMessage(body));
-    }
-
     public Task PublishAsync<T>(T message, int priority = 1) where T : class
     {
         var sendBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize<object>(message, messageManagerSettings.JsonSerializerOptions ?? JsonOptions.Default));
 
         var routingKey = queueSettings.Queues.First(q => q.Type == typeof(T)).Name;
         return PublishAsync(sendBytes.AsMemory(), routingKey, priority);
+    }
+
+    private async Task PublishAsync(ReadOnlyMemory<byte> body, string routingKey, int priority = 1)
+    {
+        var senderList = await senders.Value;
+        var sender = senderList[routingKey];
+
+        await sender.SendMessageAsync(new ServiceBusMessage(body));
     }
 
     public async ValueTask DisposeAsync()

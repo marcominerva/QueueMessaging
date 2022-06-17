@@ -46,6 +46,14 @@ internal class MessageManager : IMessageSender, IDisposable
         this.queueSettings = queueSettings;
     }
 
+    public Task PublishAsync<T>(T message, int priority = 1) where T : class
+    {
+        var sendBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize<object>(message, messageManagerSettings.JsonSerializerOptions ?? JsonOptions.Default));
+
+        var routingKey = queueSettings.Queues.First(q => q.Type == typeof(T)).Name;
+        return PublishAsync(sendBytes.AsMemory(), routingKey, priority);
+    }
+
     private Task PublishAsync(ReadOnlyMemory<byte> body, string routingKey, int priority = 1)
     {
         var properties = Channel.CreateBasicProperties();
@@ -54,14 +62,6 @@ internal class MessageManager : IMessageSender, IDisposable
 
         Channel.BasicPublish(messageManagerSettings.ExchangeName, routingKey, properties, body);
         return Task.CompletedTask;
-    }
-
-    public Task PublishAsync<T>(T message, int priority = 1) where T : class
-    {
-        var sendBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize<object>(message, messageManagerSettings.JsonSerializerOptions ?? JsonOptions.Default));
-
-        var routingKey = queueSettings.Queues.First(q => q.Type == typeof(T)).Name;
-        return PublishAsync(sendBytes.AsMemory(), routingKey, priority);
     }
 
     public void MarkAsComplete(BasicDeliverEventArgs message) => Channel.BasicAck(message.DeliveryTag, false);

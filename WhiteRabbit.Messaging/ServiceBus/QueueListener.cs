@@ -52,7 +52,7 @@ internal class QueueListener<T> : BackgroundService, IAsyncDisposable where T : 
         while (!stoppingToken.IsCancellationRequested)
         {
             var message = await serviceBusReceiver.ReceiveMessageAsync(cancellationToken: stoppingToken);
-            if (message != null)
+            if (message is not null)
             {
                 try
                 {
