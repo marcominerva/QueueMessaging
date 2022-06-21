@@ -12,7 +12,7 @@ public class InvoiceMessageReceiver : IMessageReceiver<Invoice>
         this.logger = logger;
     }
 
-    public async Task ReceiveAsync(Invoice message)
+    public async Task ReceiveAsync(Invoice message, CancellationToken cancellationToken)
     {
         logger.LogInformation("Creating invoice for order {OrderNumber}...", message.OrderNumber);
 

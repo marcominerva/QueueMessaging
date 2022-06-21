@@ -14,7 +14,7 @@ public class OrderMessageReceiver : IMessageReceiver<Order>
         this.messageSender = messageSender;
     }
 
-    public async Task ReceiveAsync(Order message)
+    public async Task ReceiveAsync(Order message, CancellationToken cancellationToken)
     {
         logger.LogInformation("Processing order {OrderNumber}...", message.Number);
 
