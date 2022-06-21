@@ -62,7 +62,7 @@ internal class QueueListener<T> : BackgroundService, IAsyncDisposable where T : 
 
                     var receiver = scope.ServiceProvider.GetService<IMessageReceiver<T>>();
                     var response = JsonSerializer.Deserialize<T>(message.Body, messageManagerSettings.JsonSerializerOptions ?? JsonOptions.Default);
-                    await receiver.ReceiveAsync(response);
+                    await receiver.ReceiveAsync(response, stoppingToken);
 
                     logger.LogDebug("Message processed");
                 }

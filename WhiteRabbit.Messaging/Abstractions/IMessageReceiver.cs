@@ -2,5 +2,5 @@
 
 public interface IMessageReceiver<T> where T : class
 {
-    Task ReceiveAsync(T message);
+    Task ReceiveAsync(T message, CancellationToken cancellationToken);
 }
